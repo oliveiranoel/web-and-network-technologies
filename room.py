@@ -39,11 +39,12 @@ class Room:
 
     def evaluation(self):
         avg = self.average()
-        if avg < 19:
-            return 'badge-blue'
-        elif 19 <= avg <= 21:
-            return 'badge-green'
-        elif 21 <= avg <= 23:
-            return 'badge-orange'
-        else:
-            return 'badge-red'
+        if avg:
+            if avg < 19:
+                return 'badge-blue'
+            elif 19 <= avg <= 21:
+                return 'badge-green'
+            elif 21 <= avg <= 23:
+                return 'badge-orange'
+            else:
+                return 'badge-red'

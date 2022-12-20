@@ -10,9 +10,9 @@
             font-family: sans-serif;
             min-width: 400px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            margin-bottom: 2%;
             margin-left: auto;
             margin-right: auto;
-            margin-bottom: 2%;
         }
 
         .styled-table thead tr {
@@ -44,25 +44,43 @@
         }
 
         .badge-red {
-            background-color: red;
+            background-color: red !important;
         }
 
         .badge-green {
-            background-color: green;
+            background-color: green !important;
         }
 
         .badge-blue {
-            background-color: deepskyblue;
+            background-color: deepskyblue !important;
         }
 
         .badge-orange {
-            background-color: orange;
+            background-color: orange !important;
         }
     </style>
 </head>
 <body>
 <h1 style="text-align: center">Raum - Temperatur Messungen</h1>
 <h4 style="text-align: center"><a href="/apidocs">Swagger-UI</a></h4>
+<table class="styled-table">
+    <tr class="badge-blue">
+        <td><19&#176;</td>
+        <td>Kalt</td>
+    </tr>
+    <tr class="badge-green">
+        <td>19&#176;-21&#176;</td>
+        <td>Ideal</td>
+    </tr>
+    <tr class="badge-orange">
+        <td>21&#176;-23&#176;</td>
+        <td>Warm</td>
+    </tr>
+    <tr class="badge-red">
+        <td>>23&#176;</td>
+        <td>Heiss</td>
+    </tr>
+</table>
 
 {% if rooms|length %}
 {% for room in rooms %}

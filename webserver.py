@@ -1,3 +1,5 @@
+import logging
+
 from flasgger import Swagger
 from flask import Flask, request, render_template, Response
 
@@ -5,6 +7,9 @@ from room import Room
 
 app = Flask(__name__)
 swagger = Swagger(app)
+
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 rooms = []
 
@@ -18,6 +23,7 @@ def get_measurements():
       200:
         description: UI is successfully displayed.
     """
+    log.info("Returning view with all rooms: %s", rooms)
     return render_template('room.html', rooms=rooms)
 
 
@@ -31,9 +37,12 @@ def create_temperature():
         description: Temperature sucessfully added.
     """
     if not rooms:
+        log.debug("Rooms list is empty!")
         rooms.append(Room())
 
-    rooms[-1].add_temperature(request.json['temperature'])
+    temp = request.json['temperature']
+    rooms[-1].add_temperature(temp)
+    log.info("Added temperature to the last object of the rooms list: %s", temp)
     return Response(status=200)
 
 
@@ -47,6 +56,7 @@ def create_room():
         description: Room successfully added.
     """
     rooms.append(Room())
+    log.info("Added a new Object Room to the rooms list")
     return Response(status=201)
 
 
@@ -59,7 +69,8 @@ def delete_rooms():
       200:
         description: Room successfully added.
     """
-    rooms = []
+    rooms.clear()
+    log.info("Cleared all objects from the rooms list")
     return Response(status=200)
 
 
@@ -69,8 +80,8 @@ def page_not_found(e):
 
 
 if __name__ == '__main__':
-    rooms.append(Room([21, 22]))
-    rooms.append(Room([23, 25]))
-    rooms.append(Room([19, 18]))
-    rooms.append(Room([20, 21]))
-    app.run(port=8080)
+    # rooms.append(Room([21, 22]))
+    # rooms.append(Room([23, 25]))
+    # rooms.append(Room([19, 18]))
+    # rooms.append(Room([20, 21]))
+    app.run(host="0.0.0.0", port=8080)

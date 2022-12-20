@@ -14,12 +14,9 @@ def main():
                 uart.write('0' + str(temperature()))
             else:
                 uart.write(str(temperature()))
-
         if button_b.was_pressed():
-            room_number += 1
             uart.write('nr')
-
-        if button_a.is_pressed() and button_b.is_pressed():
+        if accelerometer.was_gesture('shake'):
             uart.write('rr')
 
 

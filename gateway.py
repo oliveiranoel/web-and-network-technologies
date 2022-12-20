@@ -1,5 +1,5 @@
 import argparse
-import json
+import logging
 import os
 import platform
 import sys
@@ -7,7 +7,6 @@ import sys
 import requests
 import serial
 
-import logging
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 

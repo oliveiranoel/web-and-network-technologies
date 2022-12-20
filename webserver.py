@@ -34,7 +34,7 @@ def create_temperature():
     ---
     responses:
       200:
-        description: Temperature sucessfully added.
+        description: Temperature successfully added.
     """
     if not rooms:
         log.debug("Rooms list is empty!")
@@ -80,8 +80,8 @@ def page_not_found(e):
 
 
 if __name__ == '__main__':
-    # rooms.append(Room([21, 22]))
-    # rooms.append(Room([23, 25]))
-    # rooms.append(Room([19, 18]))
-    # rooms.append(Room([20, 21]))
+    rooms.append(Room([21, 22]))
+    rooms.append(Room([23, 25]))
+    rooms.append(Room([19, 18]))
+    rooms.append(Room([20, 21]))
     app.run(host="0.0.0.0", port=8080)

@@ -1,51 +1,76 @@
-import argparse
-import socket
-import sys
+from flasgger import Swagger
+from flask import Flask, request, render_template, Response
+
+from room import Room
+
+app = Flask(__name__)
+swagger = Swagger(app)
+
+rooms = []
 
 
-def setup(act_host, act_port):
-    # create a socket object
-    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # bind to the port
-    serversocket.bind((act_host, act_port))
-
-    # queue up to 5 requests
-    serversocket.listen(5)
-    return serversocket
-
-
-def run(act_serversocket):
-    while True:
-        # establish a connection to the client.py
-        clientsocket,addr = act_serversocket.accept()
-        print("Got a connection from {}".format(addr))
-
-        data = clientsocket.recv(1024)
-        print(int(data))
-        clientsocket.send(data.upper())
-        clientsocket.close()
+@app.route('/', methods=['GET'])
+def get_measurements():
+    """
+    This endpoint returns the UI for all the measurements done.
+    ---
+    responses:
+      200:
+        description: UI is successfully displayed.
+    """
+    return render_template('room.html', rooms=rooms)
 
 
-def parse_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-p",
-        "--port",
-        default="9999",
-        help="tcp port of the server host. Default: 9999")
+@app.route('/temperature', methods=['POST'])
+def create_temperature():
+    """
+    This endpoint adds a temperature to the current room.
+    ---
+    responses:
+      200:
+        description: Temperature sucessfully added.
+    """
+    if not rooms:
+        rooms.append(Room())
 
-    args = parser.parse_args()
-    return int(args.port)
+    rooms[-1].add_temperature(request.json['temperature'])
+    return Response(status=200)
+
+
+@app.route('/room', methods=['POST'])
+def create_room():
+    """
+    This endpoint adds a new room and sets is to current.
+    ---
+    responses:
+      200:
+        description: Room successfully added.
+    """
+    rooms.append(Room())
+    return Response(status=201)
+
+
+@app.route('/rooms', methods=['DELETE'])
+def delete_rooms():
+    """
+    This endpoint deletes all the rooms and correlated data.
+    ---
+    responses:
+      200:
+        description: Room successfully added.
+    """
+    rooms = []
+    return Response(status=200)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 
 if __name__ == '__main__':
-    try:
-        port = parse_arguments();
-        server_socket = setup("", port)
-        print("Server is running on port {}".format(port))
-        run(server_socket)
-    except KeyboardInterrupt as e:
-        sys.exit(0)
-    except ValueError as e:
-        print(e)
-        sys.exit(1)
+    rooms.append(Room([21, 22]))
+    rooms.append(Room([23, 25]))
+    rooms.append(Room([19, 18]))
+    rooms.append(Room([20, 21]))
+    app.run(port=8080)

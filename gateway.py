@@ -1,54 +1,49 @@
+import json
+import os
 import sys
-import socket
+
+import requests
 import serial
-
-
-def setupSocket(act_host, act_port):
-    s = socket.socket()
-    s.connect((act_host, act_port))
-    return s
 
 
 def setupSerialConnection():
     # open serial port on macos/linux
-    com = serial.Serial('/dev/cu.usbmodem1102',
-                        baudrate=115200)
-
-    # open serial port on windows
-    # com = serial.Serial('COM5')
-    print(com.name)  # check which port was really used
-    return com
-
-
-def run(act_socket, act_message):
-    act_socket.send(bytes(act_message, "utf-8"))
-
-    # Receive data from the server and shut down
-    received = str(act_socket.recv(1024), "utf-8")
-    print("Sent:     {}".format(act_message))
-    print("Received: {}".format(received))
+    com = os.popen('ls /dev/cu.usb*').read()
+    if com:
+        return com
+    else:
+        return serial.Serial('/dev/cu.usbmodem14102',
+                             baudrate=115200)
 
 
 def loop(com):
+    server_url = 'http://172.20.10.12:8080'
+
     while True:
         msg = com.read(2)  # read msg sent by the microbit
-        # 'msg' will be in bytes. You have to compare byte with a byte. Use bytestring b'...'.
-        print(int(msg))
-        run(client_socket, str(int(msg)))
-        client_socket.close()
 
-        # byte syntax see https://docs.python.org/3/library/stdtypes.html?highlight=byte#bytes
-        # https://realpython.com/lessons/defining-literal-bytes-object
+        if msg == 'rr':
+            endpoint = '/room'
+            response = requests.delete(url=server_url + endpoint)
+
+            if not response.ok:
+                raise SystemError("webservice not responding correctly")
+        elif msg == 'nr':
+            endpoint = '/room'
+            response = requests.post(url=server_url + endpoint)
+        else:
+            content = {"temperature": int(msg)}
+            payload = json.dumps(content).encode('utf8')
+            endpoint = '/temperature'
+            response = requests.post(url=server_url + endpoint,
+                                     data=payload)
+            if not response.ok:
+                raise SystemError("webservice not responding correctly")
 
 
 if __name__ == "__main__":
     try:
-        hostname = socket.gethostname()
-        print(hostname)
-        IPAddr = socket.gethostbyname(hostname)
-        print(IPAddr)
         client_serial = setupSerialConnection()
-        client_socket = setupSocket("172.20.10.2", 9999)
         loop(client_serial)
     except KeyboardInterrupt as ki:
         sys.exit(0)
